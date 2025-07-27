@@ -1,6 +1,6 @@
 ### 🚀 API Flow: The Lazy Person's API Workflow Automator
 
-![alt text](image.png)
+![Project image](image.png)
 Tired of manual API testing?. API Flow lets you automate complex workflows using plain English.
 
 **Before API Flow (The Pain):**
@@ -20,6 +20,10 @@ Tired of manual API testing?. API Flow lets you automate complex workflows using
 ```
 
 That's it. 🎉
+
+### 🎬 See It In Action
+
+Watch the demo to see API Flow in action: [📹 Demo Video](https://drive.google.com/file/d/1fUC-jY88cpd1mUfIdkwolTtRilsNX4j6/view?usp=sharing)
 
 ### 🏗️ How the Magic Happens
 
