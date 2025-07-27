@@ -31,6 +31,11 @@ import {
   Activity,
   Timer,
   Wand2,
+  Zap,
+  Database,
+  MessageCircle,
+  Image,
+  ArrowRight,
 } from "lucide-react";
 
 interface WorkflowStep {
@@ -48,6 +53,16 @@ interface Plan {
   }>;
 }
 
+interface CuratedPrompt {
+  title: string;
+  description: string;
+  prompt: string;
+  category: string;
+  icon: any;
+  difficulty: "Easy" | "Medium" | "Advanced";
+  estimatedSteps: number;
+}
+
 export default function ApiFlowTester() {
   const [prompt, setPrompt] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
@@ -58,6 +73,39 @@ export default function ApiFlowTester() {
   const [error, setError] = useState<string | null>(null);
   const [expandedSteps, setExpandedSteps] = useState<Set<number>>(new Set());
   const eventSourceRef = useRef<EventSource | null>(null);
+
+  const curatedPrompts: CuratedPrompt[] = [
+    {
+      title: "List of user",
+      description: "Fetch users and their posts from JSONPlaceholder API",
+      prompt:
+        "Get a list of users from JSONPlaceholder, then fetch detailed posts for the first user.",
+      category: "User Management",
+      icon: Database,
+      difficulty: "Medium",
+      estimatedSteps: 3,
+    },
+    {
+      title: "Get User",
+      description: "Fetch user information by ID",
+      prompt:
+        "Fetch user information for user ID 123 from JSONPlaceholder API.",
+      category: "Social Media",
+      icon: User,
+      difficulty: "Easy",
+      estimatedSteps: 2,
+    },
+    {
+      title: "Post & Comments Analysis",
+      description: "Get a popular post and analyze all its comments",
+      prompt:
+        "Make a GET request to https://jsonplaceholder.typicode.com/posts/1 to get the post details. Then make a GET request to https://jsonplaceholder.typicode.com/comments?postId=1",
+      category: "Content Analysis",
+      icon: MessageCircle,
+      difficulty: "Easy",
+      estimatedSteps: 2,
+    },
+  ];
 
   const mockWorkflows = [
     { name: "Login & Fetch Users", starred: true },
@@ -73,6 +121,23 @@ export default function ApiFlowTester() {
       newExpanded.add(index);
     }
     setExpandedSteps(newExpanded);
+  };
+
+  const handlePromptSelect = (selectedPrompt: CuratedPrompt) => {
+    setPrompt(selectedPrompt.prompt);
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "Easy":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Advanced":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
 
   const executeWorkflow = async () => {
@@ -362,6 +427,72 @@ export default function ApiFlowTester() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Curated Prompts Section - Only show when prompt is empty and not executing */}
+              {!prompt && !isExecuting && workflowSteps.length === 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="text-yellow-500" />
+                      Try These Example Workflows
+                    </CardTitle>
+                    <CardDescription>
+                      Get started quickly with these curated API flow examples
+                      using public APIs
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {curatedPrompts.map((curatedPrompt, index) => {
+                        const IconComponent = curatedPrompt.icon;
+                        return (
+                          <div
+                            key={index}
+                            onClick={() => handlePromptSelect(curatedPrompt)}
+                            className="group p-4 border rounded-lg hover:border-primary/50 hover:bg-muted/50 cursor-pointer transition-all duration-200 hover:shadow-md"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                <IconComponent className="h-4 w-4 text-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-medium text-sm group-hover:text-primary transition-colors">
+                                    {curatedPrompt.title}
+                                  </h4>
+                                  <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                                <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+                                  {curatedPrompt.description}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    variant="secondary"
+                                    className={`text-xs px-2 py-0.5 ${getDifficultyColor(
+                                      curatedPrompt.difficulty
+                                    )}`}
+                                  >
+                                    {curatedPrompt.difficulty}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    {curatedPrompt.estimatedSteps} step
+                                    {curatedPrompt.estimatedSteps > 1
+                                      ? "s"
+                                      : ""}
+                                  </span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {curatedPrompt.category}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {plan && (
                 <Card>
