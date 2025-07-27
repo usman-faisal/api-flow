@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: api-flow-backend
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: |
+      cd backend &&
+      pip install uv &&
+      uv sync
+    startCommand: |
+      cd backend &&
+      uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: PYTHONPATH
+        value: /opt/render/project/src/backend
+    rootDir: .
